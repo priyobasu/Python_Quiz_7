@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Revision Quiz</title>
+    <!-- Pixel Header Font & Handwritten Note Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-blue: #E0F2FE;        /* Soft Sky Blue */
+            --blue-accent: #BAE6FD;    /* Light Blue Card Accent */
+            --blue-dark: #0284C7;      /* Primary Accent Blue */
+            --border-dark: #0F172A;    /* Deep Slate Border */
+            --color-correct: #4ADE80;  /* Response Green */
+            --color-wrong: #F87171;    /* Response Red */
+            --text-main: #0F172A;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-blue);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- BACKGROUND CANVAS: FLOATING CANDY SPIRALS --- */
+        #spiralCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-card {
+            width: 100%;
+            max-width: 900px;
+            background: #FFFFFF;
+            border: 4px solid var(--border-dark);
+            border-radius: 20px;
+            box-shadow: 8px 8px 0px var(--border-dark);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hud-topbar {
+            background: var(--blue-accent);
+            border-bottom: 4px solid var(--border-dark);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hud-badge {
+            background: #FFFFFF;
+            border: 2px solid var(--border-dark);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 3px 3px 0px var(--border-dark);
+            font-size: 14px;
+        }
+
+        .game-view {
+            display: none;
+            padding: 26px 30px;
+        }
+
+        .game-view.active {
+            display: block;
+        }
+
+        /* --- COVER SCREEN --- */
+        .home-layout {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .main-heading {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 32px;
+            color: var(--text-main);
+            margin-bottom: 36px;
+            line-height: 1.4;
+            text-shadow: 4px 4px 0px #7DD3FC;
+        }
+
+        .btn-gameplay {
+            background: #38BDF8;
+            color: #0F172A;
+            border: 3px solid var(--border-dark);
+            padding: 14px 42px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px var(--border-dark);
+            transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+        }
+
+        .btn-gameplay:hover {
+            background: #0284C7;
+            color: #FFFFFF;
+        }
+
+        .btn-gameplay:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--border-dark);
+        }
+
+        /* --- ARENA SUBBAR --- */
+        .arena-subbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .level-headline {
+            font-weight: bold;
+            font-size: 13px;
+            color: #0369A1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-timer-bar {
+            width: 180px;
+            height: 24px;
+            background: #E2E8F0;
+            border: 2px solid var(--border-dark);
+            border-radius: 999px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .timer-progress-fill {
+            height: 100%;
+            width: 100%;
+            background: #38BDF8;
+            transition: width 0.1s linear;
+        }
+
+        .timer-text-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        /* --- QUESTION PROMPT FRAME --- */
+        .problem-description-card {
+            background-color: #F0F9FF;
+            border: 3px solid var(--border-dark);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            box-shadow: 4px 4px 0px var(--border-dark);
+        }
+
+        .problem-prompt-text {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .python-syntax-box {
+            background: #0F172A;
+            border: 2px solid var(--border-dark);
+            border-radius: 10px;
+            padding: 14px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            color: #BAE6FD;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.45;
+        }
+
+        /* --- 2x2 SELECTION GRID --- */
+        .choices-stack-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .choice-item-btn {
+            background: #FFFFFF;
+            border: 2px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            text-align: left;
+            box-shadow: 3px 3px 0px var(--border-dark);
+            transition: transform 0.05s, box-shadow 0.05s;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .choice-item-btn:hover {
+            background: #E0F2FE;
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px var(--border-dark);
+        }
+
+        .choice-item-btn.flash-green { 
+            background-color: var(--color-correct) !important; 
+            font-weight: bold; 
+            color: #064E3B;
+        }
+
+        .choice-item-btn.flash-red { 
+            background-color: var(--color-wrong) !important; 
+            font-weight: bold; 
+            color: #7F1D1D;
+        }
+
+        /* --- EXPLANATION DRAWER --- */
+        .explanation-review-box {
+            display: none;
+            background: #F0FDF4;
+            border: 2px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            box-shadow: 3px 3px 0px var(--border-dark);
+        }
+
+        .explanation-label-tag {
+            font-weight: bold;
+            color: #166534;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .explanation-body-text {
+            font-size: 13px;
+            line-height: 1.45;
+            color: #1F2937;
+        }
+
+        .footer-action-row {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* --- REPORT CARD & HANDWRITTEN NOTE --- */
+        .score-metrics-card {
+            background: #F0F9FF;
+            border: 3px solid var(--border-dark);
+            border-radius: 14px;
+            padding: 18px;
+            max-width: 580px;
+            margin: 0 auto 20px auto;
+            text-align: left;
+            box-shadow: 4px 4px 0px var(--border-dark);
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            border-bottom: 2px dashed #93C5FD;
+            padding-bottom: 5px;
+        }
+
+        .handwritten-note-card {
+            background: #FEF9C3;
+            border: 3px solid #854D0E;
+            border-radius: 14px;
+            padding: 20px 24px;
+            max-width: 620px;
+            margin: 0 auto 24px auto;
+            text-align: left;
+            box-shadow: 5px 5px 0px #854D0E;
+            position: relative;
+        }
+
+        .handwritten-title {
+            font-family: 'Caveat', cursive;
+            font-size: 26px;
+            color: #713F12;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .handwritten-body {
+            font-family: 'Caveat', cursive;
+            font-size: 21px;
+            line-height: 1.35;
+            color: #451A03;
+        }
+
+        .handwritten-signature {
+            font-family: 'Caveat', cursive;
+            font-size: 24px;
+            text-align: right;
+            color: #713F12;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        /* --- DETAILED REVIEW TABS --- */
+        .review-section {
+            margin-top: 24px;
+            border-top: 3px solid var(--border-dark);
+            padding-top: 20px;
+            text-align: left;
+        }
+
+        .review-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: #FFFFFF;
+            border: 2px solid var(--border-dark);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 2px 2px 0px var(--border-dark);
+        }
+
+        .tab-btn.active {
+            background: #0284C7;
+            color: #FFFFFF;
+        }
+
+        .review-item {
+            background: #FFFFFF;
+            border: 2px solid var(--border-dark);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            box-shadow: 2px 2px 0px var(--border-dark);
+        }
+
+        .review-item.correct {
+            border-left: 8px solid var(--color-correct);
+        }
+
+        .review-item.wrong {
+            border-left: 8px solid var(--color-wrong);
+        }
+
+        @media (max-width: 640px) {
+            .choices-stack-grid {
+                grid-template-columns: 1fr;
+            }
+            .main-heading {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ANIMATED FLOATING SPIRALS CANVAS -->
+    <canvas id="spiralCanvas"></canvas>
+
+    <div class="quiz-card">
+        <!-- TOP HUD -->
+        <div class="hud-topbar">
+            <div id="hud-index-tracker" class="hud-badge">Question 1/10</div>
+            <div id="hud-score-tracker" class="hud-badge">⭐ Score: 0</div>
+        </div>
+
+        <!-- VIEW 1: HOME COVER -->
+        <div id="view-home" class="game-view active">
+            <div class="home-layout">
+                <h1 class="main-heading">Python revision</h1>
+                <p style="color: #0369A1; font-weight: 600; margin-bottom: 24px;">10 Teen Coding Challenges • Loops, Functions &amp; Conditions</p>
+                <button id="btn-start-quiz" class="btn-gameplay">Start with the revision 🚀</button>
+            </div>
+        </div>
+
+        <!-- VIEW 2: QUIZ ARENA -->
+        <div id="view-arena" class="game-view">
+            <div class="arena-subbar">
+                <div id="arena-level-header" class="level-headline">Part 1: Spot Syntax &amp; Logic Errors</div>
+                <div class="progress-timer-bar">
+                    <div id="arena-timer-fill" class="timer-progress-fill"></div>
+                    <span id="arena-timer-text" class="timer-text-overlay">60s</span>
+                </div>
+            </div>
+
+            <div id="arena-prompt-frame" class="problem-description-card">
+                <p id="arena-question-text" class="problem-prompt-text">Loading question prompt...</p>
+                <div id="arena-syntax-terminal" class="python-syntax-box" style="display: none;"></div>
+            </div>
+
+            <!-- 2x2 SELECTION GRID -->
+            <div id="arena-choices-stack" class="choices-stack-grid"></div>
+
+            <!-- EXPLANATION DRAWER -->
+            <div id="arena-explanation-drawer" class="explanation-review-box">
+                <div class="explanation-label-tag">Explanation 💡</div>
+                <p id="explanation-body-text" class="explanation-body-text">Explanation details...</p>
+            </div>
+
+            <div class="footer-action-row">
+                <button id="btn-next-step" class="btn-gameplay" style="display: none; font-size: 14px; padding: 10px 22px;">Next Question ➡️</button>
+            </div>
+        </div>
+
+        <!-- VIEW 3: REPORT & REVIEW CARD -->
+        <div id="view-report" class="game-view">
+            <div class="home-layout" style="padding: 10px 0px;">
+                <h2 class="main-heading" style="font-size: 22px; margin-bottom: 18px;">📊 REVISION REPORT CARD</h2>
+
+                <!-- SCORE METRICS -->
+                <div class="score-metrics-card">
+                    <div class="score-row">
+                        <span>Part 1: Syntax &amp; Logic Bug Hunt (Q1-5)</span>
+                        <span id="rep-l1-score" style="color: #0369A1;">0 / 5</span>
+                    </div>
+                    <div class="score-row">
+                        <span>Part 2: Missing &amp; Broken Logic Analysis (Q6-10)</span>
+                        <span id="rep-l2-score" style="color: #0369A1;">0 / 5</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; padding-top: 4px; color: #15803D;">
+                        <span>CORRECT ANSWERS</span>
+                        <span id="rep-correct-count">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; padding-top: 4px; color: #DC2626;">
+                        <span>WRONG / MISSED ANSWERS</span>
+                        <span id="rep-wrong-count">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 17px; padding-top: 6px; border-top: 2px solid #93C5FD; margin-top: 6px; color: #0F172A;">
+                        <span>TOTAL SCORE</span>
+                        <span id="rep-grand-total">0 / 10</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; padding-top: 4px; color: #0284C7;">
+                        <span>PERCENTAGE</span>
+                        <span id="rep-percentage">0%</span>
+                    </div>
+                </div>
+
+                <!-- HANDWRITTEN NOTE FROM TUTOR PRIYADARSHINI -->
+                <div class="handwritten-note-card">
+                    <div class="handwritten-title">Dear Coder,</div>
+                    <p id="handwritten-note-body" class="handwritten-body">
+                        Awesome job working through all 10 real-world Python challenges! Finding hidden logic bugs and figuring out what's missing in a program are true developer superpowers. Keep coding and building!
+                    </p>
+                    <div class="handwritten-signature">— Tutor Priyadarshini 💛</div>
+                </div>
+
+                <!-- DETAILED QUESTION LOG TABS -->
+                <div class="review-section">
+                    <div class="review-tabs">
+                        <button class="tab-btn active" onclick="filterReviewLogs('all', this)">All (10)</button>
+                        <button class="tab-btn" onclick="filterReviewLogs('correct', this)">Correct ✅</button>
+                        <button class="tab-btn" onclick="filterReviewLogs('wrong', this)">Needs Review ❌</button>
+                    </div>
+                    <div id="review-items-container"></div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button id="btn-restart-quiz" class="btn-gameplay" style="font-size: 15px; padding: 12px 30px;">Restart Revision 🔄</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 10 CHALLENGING PYTHON REVISION QUESTIONS FOR 14-YEAR-OLD STUDENTS
+        const fullQuizChallengesRepo = [
+            // --- PART 1: Q1 - Q5 (FINDING SYNTACTICAL OR LOGICAL ERRORS IN LOOPS, FUNCTIONS & CONDITIONS) ---
+            {
+                prompt: "Question 1 (Game Rank System): A tournament bot checks a player's XP to assign a rank. Even when a player has 1800 XP, it always prints 'Silver'! What is the logical error?",
+                code: "def get_rank(xp):\n    if xp >= 500:\n        print(\"Silver\")\n    elif xp >= 1500:\n        print(\"Gold\")\n    else:\n        print(\"Bronze\")\n\nget_rank(1800)",
+                choices: [
+                    "xp >= 500 is checked first, so 1800 stops at 'Silver' and never reaches elif",
+                    "elif cannot be used inside a function",
+                    "1800 must be written in quotes as \"1800\"",
+                    "The function is missing a while loop"
+                ],
+                correctIdx: 0,
+                explanation: "Python checks if/elif from top to bottom, so check the highest value (xp >= 1500) first."
+            },
+            {
+                prompt: "Question 2 (Arcade Timer): You wrote a countdown function for a multiplayer match lobby, but when you run it, the loop freezes forever on 5! Why?",
+                code: "def lobby_countdown():\n    seconds = 5\n    while seconds > 0:\n        print(\"Starting in\", seconds)\n        seconds + 1\n\nlobby_countdown()",
+                choices: [
+                    "seconds + 1 does not update seconds, and it adds instead of subtracting",
+                    "while loops cannot use > 0",
+                    "print() cannot combine text and numbers with a comma",
+                    "seconds = 5 must be outside the function"
+                ],
+                correctIdx: 0,
+                explanation: "You must save the updated value and count down using 'seconds -= 1'."
+            },
+            {
+                prompt: "Question 3 (Spotify Playlist Filter): You want a function that prints only songs shorter than 3 minutes, but Python refuses to run with a SyntaxError. Where is the syntax mistake?",
+                code: "def short_songs(lengths):\n    for mins in lengths\n        if mins < 3:\n            print(mins, \"mins\")",
+                choices: [
+                    "The for loop line is missing a colon (:) at the end",
+                    "if mins < 3 should use = instead of <",
+                    "mins cannot be used inside a loop",
+                    "print() needs a semicolon at the end"
+                ],
+                correctIdx: 0,
+                explanation: "Every 'for', 'while', 'if', and 'def' header line in Python must end with a colon (:)."
+            },
+            {
+                prompt: "Question 4 (Exam Pass Checker): A school portal checks if a student passed BOTH Math and Science (passing score is 50). A student got 90 in Math and 30 in Science, yet it says 'Passed'! Why?",
+                code: "def check_pass(math, science):\n    if math >= 50 or science >= 50:\n        return \"Passed\"\n    return \"Retake Needed\"\n\nprint(check_pass(90, 30))",
+                choices: [
+                    "It uses 'or' instead of 'and', so passing just one subject passes both",
+                    "return cannot send back text strings",
+                    "90 and 30 should be inside a list",
+                    "An else keyword is mandatory before return \"Retake Needed\""
+                ],
+                correctIdx: 0,
+                explanation: "Use 'and' instead of 'or' when both conditions must be True at the same time."
+            },
+            {
+                prompt: "Question 5 (Daily Step Streak): You want to count how many days you hit your 10,000-step goal this week, but the function always prints 1 instead of the real total! What is the logical bug?",
+                code: "def count_goal_days(steps_list):\n    for steps in steps_list:\n        streak = 0\n        if steps >= 10000:\n            streak += 1\n    print(streak)",
+                choices: [
+                    "streak = 0 is inside the loop, so it resets back to 0 on every single day",
+                    "streak += 1 should be written as streak =+ 1",
+                    "for loops cannot loop through lists of big numbers",
+                    "if steps >= 10000 needs an else block"
+                ],
+                correctIdx: 0,
+                explanation: "Place 'streak = 0' before the 'for' loop so it doesn't reset back to zero on every iteration."
+            },
+
+            // --- PART 2: Q6 - Q10 (DETERMINE MISSING LOGIC & SPOT THE ERROR IN EXISTING CODE) ---
+            {
+                prompt: "Question 6 (Group Pizza Split): Friends are splitting a bill, and anyone with a VIP coupon gets $5 off the total before dividing. Find the ERROR in the existing code and the MISSING line!",
+                code: "def split_bill(total, friends, has_coupon):\n    if has_coupon == True:\n        total - 5\n    # MISSING\n    return each_share",
+                choices: [
+                    "Error: 'total - 5' doesn't update total (needs total -= 5); Missing: each_share = total / friends",
+                    "Error: has_coupon cannot be True; Missing: print(total)",
+                    "Error: return should be inside the if block; Missing: total = 0",
+                    "Error: friends cannot be a parameter; Missing: for loop"
+                ],
+                correctIdx: 0,
+                explanation: "Use 'total -= 5' to save the discount and define 'each_share = total / friends' before returning it."
+            },
+            {
+                prompt: "Question 7 (Roblox Robux Saver): You want to calculate how many weeks it takes to save 800 Robux if you save 'weekly' each week. Find the ERROR in the existing code and the MISSING line!",
+                code: "def weeks_to_save(weekly):\n    saved = 0\n    weeks = 0\n    while saved >= 800:\n        saved += weekly\n        # MISSING\n    return weeks",
+                choices: [
+                    "Error: condition should be 'saved < 800' (not >=); Missing: weeks += 1 inside the loop",
+                    "Error: saved = 0 should be 800; Missing: break after saved += weekly",
+                    "Error: return weeks should be inside the while loop; Missing: print(saved)",
+                    "Error: while cannot compare variables; Missing: weekly = 0"
+                ],
+                correctIdx: 0,
+                explanation: "Loop while 'saved < 800' and increment 'weeks += 1' inside the loop to count each week."
+            },
+            {
+                prompt: "Question 8 (Discord Spam Filter): A bot checks a list of chat messages and stops checking as soon as it sees 'spam', returning True. Find the ERROR in the existing code and the MISSING line!",
+                code: "def has_spam(messages):\n    for msg in messages:\n        if msg = \"spam\":\n            return True\n    # MISSING",
+                choices: [
+                    "Error: 'msg = \"spam\"' uses = instead of ==; Missing: 'return False' after the loop finishes",
+                    "Error: return True stops the loop too early; Missing: break inside the if",
+                    "Error: messages cannot hold text; Missing: else: return False inside the loop",
+                    "Error: for loop needs range(); Missing: print(msg)"
+                ],
+                correctIdx: 0,
+                explanation: "Use '==' to compare strings and add 'return False' after the loop when no spam is found."
+            },
+            {
+                prompt: "Question 9 (Mobile Data Saver): You have a 5 GB data cap. This function adds up daily app usage and stops once total usage would exceed 5 GB. Find the ERROR and the MISSING line!",
+                code: "def safe_usage(daily_list):\n    used = 0\n    for gb in daily_list:\n        if used + gb > 5:\n            # MISSING\n        used = gb\n    return used",
+                choices: [
+                    "Error: 'used = gb' overwrites instead of adding (needs used += gb); Missing: 'break' inside the if",
+                    "Error: used = 0 should be 5; Missing: 'continue' inside the if",
+                    "Error: > 5 should be < 5; Missing: 'return gb' inside the if",
+                    "Error: daily_list cannot have decimals; Missing: used = 0 inside the loop"
+                ],
+                correctIdx: 0,
+                explanation: "Use 'break' to exit the loop at the 5 GB limit and 'used += gb' to add each day's usage."
+            },
+            {
+                prompt: "Question 10 (Highest Boss Score): This function should find and return the HIGHEST score from a player's match history. Find the ERROR in the existing code and the MISSING line!",
+                code: "def top_score(scores):\n    best = 0\n    for s in scores:\n        if s < best:\n            # MISSING\n    return best",
+                choices: [
+                    "Error: 's < best' finds smaller numbers instead of 's > best'; Missing: 'best = s' inside the if",
+                    "Error: best = 0 should be 1000; Missing: 'best += s' inside the if",
+                    "Error: return best should be indented inside the loop; Missing: else: break",
+                    "Error: for s in scores needs a colon after scores[0]; Missing: print(s)"
+                ],
+                correctIdx: 0,
+                explanation: "Check if 's > best' and update 'best = s' whenever a higher score is found."
+            }
+        ];
+
+        let activeIndex = 0;
+        let runningScore = 0;
+        let l1Points = 0; 
+        let l2Points = 0; 
+
+        let clockIntervalRef = null;
+        let secondsRemaining = 60;
+        let phaseLocked = false;
+        let userResponsesLog = [];
+
+        // DOM elements
+        const viewHome = document.getElementById("view-home");
+        const viewArena = document.getElementById("view-arena");
+        const viewReport = document.getElementById("view-report");
+
+        const hudIndexTracker = document.getElementById("hud-index-tracker");
+        const hudScoreTracker = document.getElementById("hud-score-tracker");
+        const arenaTimerFill = document.getElementById("arena-timer-fill");
+        const arenaTimerText = document.getElementById("arena-timer-text");
+        
+        const arenaLevelHeader = document.getElementById("arena-level-header");
+        const arenaQuestionText = document.getElementById("arena-question-text");
+        const arenaSyntaxTerminal = document.getElementById("arena-syntax-terminal");
+        const arenaChoicesStack = document.getElementById("arena-choices-stack");
+        
+        const arenaExplanationDrawer = document.getElementById("arena-explanation-drawer");
+        const explanationBodyText = document.getElementById("explanation-body-text");
+        const btnNextStep = document.getElementById("btn-next-step");
+
+        // --- DYNAMIC SHUFFLE HELPER (Fisher-Yates) ---
+        function shuffleQuestionChoices(question) {
+            const correctAnswerText = question.choices[question.correctIdx];
+            for (let i = question.choices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [question.choices[i], question.choices[j]] = [question.choices[j], question.choices[i]];
+            }
+            question.correctIdx = question.choices.indexOf(correctAnswerText);
+        }
+
+        // --- FLOATING CANDY SPIRALS ANIMATION ---
+        const spiralCanvas = document.getElementById("spiralCanvas");
+        const spiralCtx = spiralCanvas.getContext("2d");
+        let spiralItems = [];
+
+        function resizeSpiralCanvas() {
+            spiralCanvas.width = window.innerWidth;
+            spiralCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeSpiralCanvas);
+        resizeSpiralCanvas();
+
+        const candyColors = ["#38BDF8", "#818CF8", "#F472B6", "#FBBF24", "#34D399"];
+
+        for (let i = 0; i < 24; i++) {
+            spiralItems.push({
+                x: Math.random() * spiralCanvas.width,
+                y: Math.random() * spiralCanvas.height,
+                radius: Math.random() * 12 + 10,
+                speedY: Math.random() * 0.6 + 0.3,
+                rot: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() * 0.04) - 0.02,
+                color: candyColors[i % candyColors.length]
+            });
+        }
+
+        function drawFloatingSpirals() {
+            spiralCtx.clearRect(0, 0, spiralCanvas.width, spiralCanvas.height);
+
+            spiralItems.forEach(sp => {
+                sp.y -= sp.speedY;
+                sp.rot += sp.rotSpeed;
+
+                if (sp.y < -30) {
+                    sp.y = spiralCanvas.height + 30;
+                    sp.x = Math.random() * spiralCanvas.width;
+                }
+
+                spiralCtx.save();
+                spiralCtx.translate(sp.x, sp.y);
+                spiralCtx.rotate(sp.rot);
+                spiralCtx.strokeStyle = sp.color;
+                spiralCtx.lineWidth = 2.5;
+                spiralCtx.beginPath();
+
+                for (let a = 0; a < Math.PI * 3.5; a += 0.2) {
+                    let r = (a / (Math.PI * 3.5)) * sp.radius;
+                    let px = r * Math.cos(a);
+                    let py = r * Math.sin(a);
+                    if (a === 0) spiralCtx.moveTo(px, py);
+                    else spiralCtx.lineTo(px, py);
+                }
+                spiralCtx.stroke();
+                spiralCtx.restore();
+            });
+
+            requestAnimationFrame(drawFloatingSpirals);
+        }
+        drawFloatingSpirals();
+
+        // --- VIEW SWITCHER ---
+        function switchGameView(targetPanel) {
+            viewHome.classList.remove("active");
+            viewArena.classList.remove("active");
+            viewReport.classList.remove("active");
+            targetPanel.classList.add("active");
+        }
+
+        // --- QUIZ LIFECYCLE ---
+        function initializeQuizArena() {
+            activeIndex = 0;
+            runningScore = 0;
+            l1Points = 0; 
+            l2Points = 0; 
+            userResponsesLog = [];
+            hudScoreTracker.innerText = "⭐ Score: 0";
+            
+            fullQuizChallengesRepo.forEach(shuffleQuestionChoices);
+
+            switchGameView(viewArena);
+            displayActiveChallengeCard();
+        }
+
+        function displayActiveChallengeCard() {
+            phaseLocked = false;
+            arenaExplanationDrawer.style.display = "none";
+            btnNextStep.style.display = "none";
+            
+            arenaChoicesStack.innerHTML = "";
+            arenaSyntaxTerminal.style.display = "none";
+
+            const currentObj = fullQuizChallengesRepo[activeIndex];
+            
+            hudIndexTracker.innerText = `Question ${activeIndex + 1}/10`;
+            arenaQuestionText.innerText = currentObj.prompt;
+
+            if (activeIndex < 5) {
+                arenaLevelHeader.innerText = "Part 1: Spot Syntax & Logic Errors 🛠️";
+            } else {
+                arenaLevelHeader.innerText = "Part 2: Find Missing Logic & Code Errors 🔍";
+            }
+
+            if (currentObj.code) {
+                arenaSyntaxTerminal.innerText = currentObj.code;
+                arenaSyntaxTerminal.style.display = "block";
+            }
+
+            buildSelectionGrid(currentObj);
+            triggerCountdownClock();
+        }
+
+        function triggerCountdownClock() {
+            clearInterval(clockIntervalRef);
+            const totalTime = 60;
+            secondsRemaining = totalTime;
+            arenaTimerFill.style.width = "100%";
+            arenaTimerText.innerText = `${totalTime}s`;
+
+            clockIntervalRef = setInterval(() => {
+                secondsRemaining -= 0.1;
+                let pct = (secondsRemaining / totalTime) * 100;
+                arenaTimerFill.style.width = `${Math.max(0, pct)}%`;
+                arenaTimerText.innerText = `${Math.ceil(secondsRemaining)}s`;
+
+                if (secondsRemaining <= 0) {
+                    clearInterval(clockIntervalRef);
+                    processRoundTimeout();
+                }
+            }, 100);
+        }
+
+        function buildSelectionGrid(dataObj) {
+            dataObj.choices.forEach((textStr, iKey) => {
+                const btn = document.createElement("button");
+                btn.className = "choice-item-btn";
+                btn.innerText = textStr;
+                btn.onclick = () => parseSelectionChoiceInput(iKey, btn);
+                arenaChoicesStack.appendChild(btn);
+            });
+        }
+
+        function parseSelectionChoiceInput(userClickedIdx, elementNodeRef) {
+            if (phaseLocked) return;
+            phaseLocked = true;
+            clearInterval(clockIntervalRef);
+
+            const questObj = fullQuizChallengesRepo[activeIndex];
+            const optionsArray = arenaChoicesStack.children;
+            const isCorrect = (userClickedIdx === questObj.correctIdx);
+
+            userResponsesLog.push({
+                index: activeIndex + 1,
+                prompt: questObj.prompt,
+                code: questObj.code || null,
+                userChoiceText: questObj.choices[userClickedIdx],
+                correctChoiceText: questObj.choices[questObj.correctIdx],
+                isCorrect: isCorrect,
+                explanation: questObj.explanation
+            });
+
+            if (isCorrect) {
+                elementNodeRef.classList.add("flash-green");
+                runningScore++;
+                tallyCategoryPerformanceMetrics();
+                hudScoreTracker.innerText = `⭐ Score: ${runningScore}`;
+            } else {
+                elementNodeRef.classList.add("flash-red");
+                optionsArray[questObj.correctIdx].classList.add("flash-green");
+            }
+
+            displayExplanationDrawer(questObj.explanation);
+        }
+
+        function tallyCategoryPerformanceMetrics() {
+            if (activeIndex < 5) {
+                l1Points++;
+            } else {
+                l2Points++;
+            }
+        }
+
+        function processRoundTimeout() {
+            phaseLocked = true;
+            const currentObj = fullQuizChallengesRepo[activeIndex];
+            const optionsArray = arenaChoicesStack.children;
+
+            userResponsesLog.push({
+                index: activeIndex + 1,
+                prompt: currentObj.prompt,
+                code: currentObj.code || null,
+                userChoiceText: "Time ran out (No response)",
+                correctChoiceText: currentObj.choices[currentObj.correctIdx],
+                isCorrect: false,
+                explanation: currentObj.explanation
+            });
+
+            optionsArray[currentObj.correctIdx].classList.add("flash-green");
+            displayExplanationDrawer(currentObj.explanation);
+        }
+
+        function displayExplanationDrawer(summaryText) {
+            explanationBodyText.innerText = summaryText;
+            arenaExplanationDrawer.style.display = "block";
+            btnNextStep.style.display = "inline-block";
+        }
+
+        function advanceToNextQuestCard() {
+            activeIndex++;
+            if (activeIndex < fullQuizChallengesRepo.length) {
+                displayActiveChallengeCard();
+            } else {
+                compileFinalReportCardSummary();
+            }
+        }
+
+        function compileFinalReportCardSummary() {
+            switchGameView(viewReport);
+            const totalQuestions = fullQuizChallengesRepo.length;
+            const wrongAnswersCount = totalQuestions - runningScore;
+
+            document.getElementById("rep-l1-score").innerText = `${l1Points} / 5`;
+            document.getElementById("rep-l2-score").innerText = `${l2Points} / 5`;
+            document.getElementById("rep-correct-count").innerText = `${runningScore} Questions`;
+            document.getElementById("rep-wrong-count").innerText = `${wrongAnswersCount} Questions`;
+            document.getElementById("rep-grand-total").innerText = `${runningScore} / ${totalQuestions}`;
+
+            const percentageVal = Math.round((runningScore / totalQuestions) * 100);
+            document.getElementById("rep-percentage").innerText = `${percentageVal}%`;
+
+            const noteElement = document.getElementById("handwritten-note-body");
+            if (runningScore >= 8) {
+                noteElement.innerText = `Impressive work! You scored ${runningScore} out of 10 (${percentageVal}%), catching sneaky logic bugs and filling in missing code like a pro game developer. Ready for the next level!`;
+            } else if (runningScore >= 5) {
+                noteElement.innerText = `Solid effort completing all 10 challenges! You got ${runningScore} right and ${wrongAnswersCount} to review. Check the breakdown below—spotting loop resets and missing steps gets easier every time!`;
+            } else {
+                noteElement.innerText = `Good effort tackling these real-world Python challenges! You got ${runningScore} right and ${wrongAnswersCount} to review. Walk through the explanations below step-by-step and try another round to level up your debugging skills!`;
+            }
+
+            renderDetailedReviewLog("all");
+        }
+
+        // --- DETAILED LOG RENDERING ---
+        function renderDetailedReviewLog(filter) {
+            const container = document.getElementById("review-items-container");
+            container.innerHTML = "";
+
+            const filteredLogs = userResponsesLog.filter(item => {
+                if (filter === "correct") return item.isCorrect;
+                if (filter === "wrong") return !item.isCorrect;
+                return true;
+            });
+
+            if (filteredLogs.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: #64748B; padding: 16px; font-weight: 600;">No questions in this section!</div>`;
+                return;
+            }
+
+            filteredLogs.forEach(log => {
+                const itemDiv = document.createElement("div");
+                itemDiv.className = `review-item ${log.isCorrect ? 'correct' : 'wrong'}`;
+
+                let html = `
+                    <div style="font-weight: 700; margin-bottom: 4px;">
+                        <span>Q${log.index}: ${log.prompt}</span>
+                        <span style="float: right;">${log.isCorrect ? '✅ Correct' : '❌ Needs Review'}</span>
+                    </div>
+                `;
+
+                if (log.code) {
+                    html += `<pre style="background: #F1F5F9; padding: 6px 10px; border-radius: 6px; font-size: 11px; margin: 4px 0;">${log.code}</pre>`;
+                }
+
+                html += `
+                    <div style="font-size: 12px; margin-top: 4px;">
+                        <div><strong>Your choice:</strong> <span style="color: ${log.isCorrect ? '#166534' : '#991B1B'};">${log.userChoiceText}</span></div>
+                        ${!log.isCorrect ? `<div><strong>Correct answer:</strong> <span style="color: #166534;">${log.correctChoiceText}</span></div>` : ''}
+                        <div style="color: #475569; margin-top: 4px;"><em>💡 ${log.explanation}</em></div>
+                    </div>
+                `;
+
+                itemDiv.innerHTML = html;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        function filterReviewLogs(type, btnElement) {
+            const allTabs = document.querySelectorAll(".tab-btn");
+            allTabs.forEach(b => b.classList.remove("active"));
+            btnElement.classList.add("active");
+            renderDetailedReviewLog(type);
+        }
+
+        function returnToCoverSplash() {
+            switchGameView(viewHome);
+        }
+
+        // Event listeners
+        document.getElementById("btn-start-quiz").addEventListener("click", initializeQuizArena);
+        document.getElementById("btn-next-step").addEventListener("click", advanceToNextQuestCard);
+        document.getElementById("btn-restart-quiz").addEventListener("click", returnToCoverSplash);
+    </script>
+</body>
+</html>
