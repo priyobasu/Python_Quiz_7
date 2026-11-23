@@ -127,13 +127,41 @@
             box-shadow: 2px 2px 0px var(--border-dark);
         }
 
-        /* --- ARENA SUBBAR --- */
+        /* --- ARENA SUBBAR & TIMER --- */
         .arena-subbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
-            gap: 12px;
+        }
+
+        .progress-timer-bar {
+            width: 220px;
+            background: #FFFFFF;
+            border: 2px solid var(--border-dark);
+            border-radius: 10px;
+            height: 22px;
+            overflow: hidden;
+            box-shadow: 2px 2px 0px var(--border-dark);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .timer-progress-fill {
+            width: 100%;
+            height: 100%;
+            background: #38BDF8;
+            transition: width 0.1s linear;
+        }
+
+        .timer-text-overlay {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #0F172A;
         }
 
         .level-headline {
@@ -142,34 +170,6 @@
             color: #0369A1;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-
-        .progress-timer-bar {
-            width: 180px;
-            height: 24px;
-            background: #E2E8F0;
-            border: 2px solid var(--border-dark);
-            border-radius: 999px;
-            position: relative;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .timer-progress-fill {
-            height: 100%;
-            width: 100%;
-            background: #38BDF8;
-            transition: width 0.1s linear;
-        }
-
-        .timer-text-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--text-main);
         }
 
         /* --- QUESTION PROMPT FRAME --- */
@@ -409,7 +409,6 @@
         <div id="view-home" class="game-view active">
             <div class="home-layout">
                 <h1 class="main-heading">Python revision</h1>
-                <p style="color: #0369A1; font-weight: 600; margin-bottom: 24px;">10 Teen Coding Challenges • Loops, Functions &amp; Conditions</p>
                 <button id="btn-start-quiz" class="btn-gameplay">Start with the revision 🚀</button>
             </div>
         </div>
@@ -417,10 +416,10 @@
         <!-- VIEW 2: QUIZ ARENA -->
         <div id="view-arena" class="game-view">
             <div class="arena-subbar">
-                <div id="arena-level-header" class="level-headline">Part 1: Spot Syntax &amp; Logic Errors</div>
+                <div id="arena-level-header" class="level-headline">Part 1: Spot the Code Bug 🛠️</div>
                 <div class="progress-timer-bar">
                     <div id="arena-timer-fill" class="timer-progress-fill"></div>
-                    <span id="arena-timer-text" class="timer-text-overlay">60s</span>
+                    <span id="arena-timer-text" class="timer-text-overlay">50s</span>
                 </div>
             </div>
 
@@ -451,22 +450,14 @@
                 <!-- SCORE METRICS -->
                 <div class="score-metrics-card">
                     <div class="score-row">
-                        <span>Part 1: Syntax &amp; Logic Bug Hunt (Q1-5)</span>
+                        <span>Part 1: Find the Code Error (Q1-5)</span>
                         <span id="rep-l1-score" style="color: #0369A1;">0 / 5</span>
                     </div>
                     <div class="score-row">
-                        <span>Part 2: Missing &amp; Broken Logic Analysis (Q6-10)</span>
+                        <span>Part 2: Complete Missing Syntax (Q6-10)</span>
                         <span id="rep-l2-score" style="color: #0369A1;">0 / 5</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; padding-top: 4px; color: #15803D;">
-                        <span>CORRECT ANSWERS</span>
-                        <span id="rep-correct-count">0</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; padding-top: 4px; color: #DC2626;">
-                        <span>WRONG / MISSED ANSWERS</span>
-                        <span id="rep-wrong-count">0</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 17px; padding-top: 6px; border-top: 2px solid #93C5FD; margin-top: 6px; color: #0F172A;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 17px; padding-top: 6px; color: #15803D;">
                         <span>TOTAL SCORE</span>
                         <span id="rep-grand-total">0 / 10</span>
                     </div>
@@ -478,9 +469,9 @@
 
                 <!-- HANDWRITTEN NOTE FROM TUTOR PRIYADARSHINI -->
                 <div class="handwritten-note-card">
-                    <div class="handwritten-title">Dear Coder,</div>
+                    <div class="handwritten-title">Dear Student,</div>
                     <p id="handwritten-note-body" class="handwritten-body">
-                        Awesome job working through all 10 real-world Python challenges! Finding hidden logic bugs and figuring out what's missing in a program are true developer superpowers. Keep coding and building!
+                        Super proud of you for revising Python! You worked through real-world debugging challenges and completed missing conditions, loops, and functions so thoughtfully. Keep coding with this curiosity and passion!
                     </p>
                     <div class="handwritten-signature">— Tutor Priyadarshini 💛</div>
                 </div>
@@ -503,130 +494,130 @@
     </div>
 
     <script>
-        // 10 CHALLENGING PYTHON REVISION QUESTIONS FOR 14-YEAR-OLD STUDENTS
+        // 10 REAL-WORLD PYTHON REVISION QUESTIONS (For a 15-year-old student)
         const fullQuizChallengesRepo = [
-            // --- PART 1: Q1 - Q5 (FINDING SYNTACTICAL OR LOGICAL ERRORS IN LOOPS, FUNCTIONS & CONDITIONS) ---
+            // --- PART 1: FIND THE ERROR IN THE CODE (Q1 - Q5) ---
             {
-                prompt: "Question 1 (Game Rank System): A tournament bot checks a player's XP to assign a rank. Even when a player has 1800 XP, it always prints 'Silver'! What is the logical error?",
-                code: "def get_rank(xp):\n    if xp >= 500:\n        print(\"Silver\")\n    elif xp >= 1500:\n        print(\"Gold\")\n    else:\n        print(\"Bronze\")\n\nget_rank(1800)",
+                prompt: "Question 1: A sneaker store app gives a $30 VIP discount on orders of $150 or more, and a $10 discount on orders of $75 or more. A $180 order only gets $10 off. Why?",
+                code: "order_total = 180\nif order_total >= 75:\n    discount = 10\nelif order_total >= 150:\n    discount = 30",
                 choices: [
-                    "xp >= 500 is checked first, so 1800 stops at 'Silver' and never reaches elif",
-                    "elif cannot be used inside a function",
-                    "1800 must be written in quotes as \"1800\"",
-                    "The function is missing a while loop"
+                    "order_total >= 75 is checked first and matches 180, skipping elif >= 150",
+                    "elif cannot be used with numbers greater than 100",
+                    "discount = 30 needs to be written inside print()",
+                    "order_total >= 150 requires an else block after it"
                 ],
                 correctIdx: 0,
-                explanation: "Python checks if/elif from top to bottom, so check the highest value (xp >= 1500) first."
+                explanation: "Because 180 >= 75 is True first, Python skips the elif >= 150 check—always place the stricter >= 150 condition first."
             },
             {
-                prompt: "Question 2 (Arcade Timer): You wrote a countdown function for a multiplayer match lobby, but when you run it, the loop freezes forever on 5! Why?",
-                code: "def lobby_countdown():\n    seconds = 5\n    while seconds > 0:\n        print(\"Starting in\", seconds)\n        seconds + 1\n\nlobby_countdown()",
+                prompt: "Question 2: A Discord bot checks if a user is a moderator or has at least 500 XP before unlocking a private voice channel, but it throws a SyntaxError. What is wrong?",
+                code: "is_mod = False\nxp = 620\nif is_mod || xp >= 500:\n    print(\"Channel unlocked!\")",
                 choices: [
-                    "seconds + 1 does not update seconds, and it adds instead of subtracting",
-                    "while loops cannot use > 0",
-                    "print() cannot combine text and numbers with a comma",
-                    "seconds = 5 must be outside the function"
+                    "Python uses 'or' instead of '||' to combine conditions",
+                    "is_mod must be written as is_mod == \"False\"",
+                    "Booleans and integers cannot be checked in the same if line",
+                    "xp >= 500 must come before is_mod"
                 ],
                 correctIdx: 0,
-                explanation: "You must save the updated value and count down using 'seconds -= 1'."
+                explanation: "Python uses the keyword 'or' rather than '||' to check if at least one condition is True."
             },
             {
-                prompt: "Question 3 (Spotify Playlist Filter): You want a function that prints only songs shorter than 3 minutes, but Python refuses to run with a SyntaxError. Where is the syntax mistake?",
-                code: "def short_songs(lengths):\n    for mins in lengths\n        if mins < 3:\n            print(mins, \"mins\")",
+                prompt: "Question 3: A rocket launch simulator counts down from 5 to 1 before liftoff, but the loop never runs at all. What is the bug?",
+                code: "timer = 5\nwhile timer < 1:\n    print(\"T-minus:\", timer)\n    timer -= 1",
                 choices: [
-                    "The for loop line is missing a colon (:) at the end",
-                    "if mins < 3 should use = instead of <",
-                    "mins cannot be used inside a loop",
-                    "print() needs a semicolon at the end"
+                    "timer starts at 5, so 'timer < 1' is False right away (needs timer >= 1)",
+                    "timer -= 1 should be timer =+ 1",
+                    "while loops cannot count downward in Python",
+                    "print() must appear after timer -= 1"
                 ],
                 correctIdx: 0,
-                explanation: "Every 'for', 'while', 'if', and 'def' header line in Python must end with a colon (:)."
+                explanation: "Since timer begins at 5, 'timer < 1' is immediately False—changing it to 'timer >= 1' lets the countdown run."
             },
             {
-                prompt: "Question 4 (Exam Pass Checker): A school portal checks if a student passed BOTH Math and Science (passing score is 50). A student got 90 in Math and 30 in Science, yet it says 'Passed'! Why?",
-                code: "def check_pass(math, science):\n    if math >= 50 or science >= 50:\n        return \"Passed\"\n    return \"Retake Needed\"\n\nprint(check_pass(90, 30))",
+                prompt: "Question 4: A concert ticket app adds an $8 service fee to the ticket price, but 'checkout' prints as None. What is missing?",
+                code: "def add_fee(ticket_price):\n    total = ticket_price + 8\n\ncheckout = add_fee(65)\nprint(checkout)",
                 choices: [
-                    "It uses 'or' instead of 'and', so passing just one subject passes both",
-                    "return cannot send back text strings",
-                    "90 and 30 should be inside a list",
-                    "An else keyword is mandatory before return \"Retake Needed\""
+                    "The function does not have 'return total'",
+                    "Functions cannot add 8 to a parameter",
+                    "65 must be written as \"$65\"",
+                    "total must be declared outside def add_fee()"
                 ],
                 correctIdx: 0,
-                explanation: "Use 'and' instead of 'or' when both conditions must be True at the same time."
+                explanation: "Without 'return total', Python functions return None by default instead of passing the calculated dollar amount back."
             },
             {
-                prompt: "Question 5 (Daily Step Streak): You want to count how many days you hit your 10,000-step goal this week, but the function always prints 1 instead of the real total! What is the logical bug?",
-                code: "def count_goal_days(steps_list):\n    for steps in steps_list:\n        streak = 0\n        if steps >= 10000:\n            streak += 1\n    print(streak)",
+                prompt: "Question 5: An e-sports tracker adds up kills across 4 matches, but it crashes with an IndexError on the final step. Why?",
+                code: "kills = [12, 8, 15, 10]\ntotal_kills = 0\nfor match in range(1, 5):\n    total_kills += kills[match]",
                 choices: [
-                    "streak = 0 is inside the loop, so it resets back to 0 on every single day",
-                    "streak += 1 should be written as streak =+ 1",
-                    "for loops cannot loop through lists of big numbers",
-                    "if steps >= 10000 needs an else block"
+                    "List indexes run from 0 to 3, so kills[4] is out of range",
+                    "total_kills += kills[match] should be total_kills = kills[match]",
+                    "for loops cannot use range(1, 5) with lists",
+                    "kills[match] only works with string lists"
                 ],
                 correctIdx: 0,
-                explanation: "Place 'streak = 0' before the 'for' loop so it doesn't reset back to zero on every iteration."
+                explanation: "A 4-item list has indexes 0, 1, 2, and 3—starting at 1 and going up to 4 tries to access kills[4], causing an IndexError."
             },
 
-            // --- PART 2: Q6 - Q10 (DETERMINE MISSING LOGIC & SPOT THE ERROR IN EXISTING CODE) ---
+            // --- PART 2: COMPLETE THE MISSING SYNTAX (Q6 - Q10) ---
             {
-                prompt: "Question 6 (Group Pizza Split): Friends are splitting a bill, and anyone with a VIP coupon gets $5 off the total before dividing. Find the ERROR in the existing code and the MISSING line!",
-                code: "def split_bill(total, friends, has_coupon):\n    if has_coupon == True:\n        total - 5\n    # MISSING\n    return each_share",
+                prompt: "Question 6: A thrift-shopping app filters a list of jacket prices and saves items costing $45 or less into 'budget_picks'. Pick the missing syntax:",
+                code: "prices = [60, 35, 80, 45, 25]\nbudget_picks = []\nfor tag in prices:\n    # MISSING\n        budget_picks.append(tag)",
                 choices: [
-                    "Error: 'total - 5' doesn't update total (needs total -= 5); Missing: each_share = total / friends",
-                    "Error: has_coupon cannot be True; Missing: print(total)",
-                    "Error: return should be inside the if block; Missing: total = 0",
-                    "Error: friends cannot be a parameter; Missing: for loop"
+                    "if tag <= 45:",
+                    "if prices <= 45:",
+                    "if tag =< 45:",
+                    "while tag <= 45:"
                 ],
                 correctIdx: 0,
-                explanation: "Use 'total -= 5' to save the discount and define 'each_share = total / friends' before returning it."
+                explanation: "'if tag <= 45:' checks each individual jacket price in the loop and includes items costing $45 or less."
             },
             {
-                prompt: "Question 7 (Roblox Robux Saver): You want to calculate how many weeks it takes to save 800 Robux if you save 'weekly' each week. Find the ERROR in the existing code and the MISSING line!",
-                code: "def weeks_to_save(weekly):\n    saved = 0\n    weeks = 0\n    while saved >= 800:\n        saved += weekly\n        # MISSING\n    return weeks",
+                prompt: "Question 7: A group of friends splits a $90 concert rideshare evenly. Complete the function so it sends back each rider's dollar share:",
+                code: "def split_ride(fare, riders):\n    per_person = fare / riders\n    # MISSING\n\nprint(\"Each pays: $\", split_ride(90, 3))",
                 choices: [
-                    "Error: condition should be 'saved < 800' (not >=); Missing: weeks += 1 inside the loop",
-                    "Error: saved = 0 should be 800; Missing: break after saved += weekly",
-                    "Error: return weeks should be inside the while loop; Missing: print(saved)",
-                    "Error: while cannot compare variables; Missing: weekly = 0"
+                    "return per_person",
+                    "print(per_person)",
+                    "return fare",
+                    "output per_person"
                 ],
                 correctIdx: 0,
-                explanation: "Loop while 'saved < 800' and increment 'weeks += 1' inside the loop to count each week."
+                explanation: "'return per_person' sends the calculated dollar share back to the print statement."
             },
             {
-                prompt: "Question 8 (Discord Spam Filter): A bot checks a list of chat messages and stops checking as soon as it sees 'spam', returning True. Find the ERROR in the existing code and the MISSING line!",
-                code: "def has_spam(messages):\n    for msg in messages:\n        if msg = \"spam\":\n            return True\n    # MISSING",
+                prompt: "Question 8: An arcade card starts with $20 and deducts $3 per game played while enough balance remains. Pick the missing loop header:",
+                code: "balance = 20\n# MISSING\n    balance -= 3\n    print(\"Card balance: $\", balance)",
                 choices: [
-                    "Error: 'msg = \"spam\"' uses = instead of ==; Missing: 'return False' after the loop finishes",
-                    "Error: return True stops the loop too early; Missing: break inside the if",
-                    "Error: messages cannot hold text; Missing: else: return False inside the loop",
-                    "Error: for loop needs range(); Missing: print(msg)"
+                    "while balance >= 3:",
+                    "while balance > 20:",
+                    "for balance in 3:",
+                    "if balance >= 3:"
                 ],
                 correctIdx: 0,
-                explanation: "Use '==' to compare strings and add 'return False' after the loop when no spam is found."
+                explanation: "'while balance >= 3:' keeps deducting $3 per game as long as the player has at least $3 left on the card."
             },
             {
-                prompt: "Question 9 (Mobile Data Saver): You have a 5 GB data cap. This function adds up daily app usage and stops once total usage would exceed 5 GB. Find the ERROR and the MISSING line!",
-                code: "def safe_usage(daily_list):\n    used = 0\n    for gb in daily_list:\n        if used + gb > 5:\n            # MISSING\n        used = gb\n    return used",
+                prompt: "Question 9: A YouTube creator tracker counts how many videos crossed 10,000 views this month. Complete the missing counter update:",
+                code: "views = [4500, 12800, 9200, 21000]\nviral_count = 0\nfor v in views:\n    if v >= 10000:\n        # MISSING",
                 choices: [
-                    "Error: 'used = gb' overwrites instead of adding (needs used += gb); Missing: 'break' inside the if",
-                    "Error: used = 0 should be 5; Missing: 'continue' inside the if",
-                    "Error: > 5 should be < 5; Missing: 'return gb' inside the if",
-                    "Error: daily_list cannot have decimals; Missing: used = 0 inside the loop"
+                    "viral_count += 1",
+                    "viral_count =+ 1",
+                    "viral_count + 1",
+                    "views += 1"
                 ],
                 correctIdx: 0,
-                explanation: "Use 'break' to exit the loop at the 5 GB limit and 'used += gb' to add each day's usage."
+                explanation: "'viral_count += 1' adds 1 to the counter each time a video reaches at least 10,000 views."
             },
             {
-                prompt: "Question 10 (Highest Boss Score): This function should find and return the HIGHEST score from a player's match history. Find the ERROR in the existing code and the MISSING line!",
-                code: "def top_score(scores):\n    best = 0\n    for s in scores:\n        if s < best:\n            # MISSING\n    return best",
+                prompt: "Question 10: A promo-code checker verifies that a gift code is exactly 8 characters long before applying a $15 credit. Pick the missing condition:",
+                code: "promo = \"SAVE15NOW\"\n# MISSING\n    print(\"$15 credit applied!\")\nelse:\n    print(\"Invalid code length!\")",
                 choices: [
-                    "Error: 's < best' finds smaller numbers instead of 's > best'; Missing: 'best = s' inside the if",
-                    "Error: best = 0 should be 1000; Missing: 'best += s' inside the if",
-                    "Error: return best should be indented inside the loop; Missing: else: break",
-                    "Error: for s in scores needs a colon after scores[0]; Missing: print(s)"
+                    "if len(promo) == 8:",
+                    "if promo.len() == 8:",
+                    "if len(promo) = 8:",
+                    "if length(promo) == 8:"
                 ],
                 correctIdx: 0,
-                explanation: "Check if 's > best' and update 'best = s' whenever a higher score is found."
+                explanation: "'if len(promo) == 8:' uses Python's len() function and '==' to check if the string has exactly 8 characters."
             }
         ];
 
@@ -636,7 +627,7 @@
         let l2Points = 0; 
 
         let clockIntervalRef = null;
-        let secondsRemaining = 60;
+        let secondsRemaining = 50;
         let phaseLocked = false;
         let userResponsesLog = [];
 
@@ -714,6 +705,7 @@
                 spiralCtx.lineWidth = 2.5;
                 spiralCtx.beginPath();
 
+                // Draw sweet candy spiral loop
                 for (let a = 0; a < Math.PI * 3.5; a += 0.2) {
                     let r = (a / (Math.PI * 3.5)) * sp.radius;
                     let px = r * Math.cos(a);
@@ -746,6 +738,7 @@
             userResponsesLog = [];
             hudScoreTracker.innerText = "⭐ Score: 0";
             
+            // Randomize all question options
             fullQuizChallengesRepo.forEach(shuffleQuestionChoices);
 
             switchGameView(viewArena);
@@ -766,9 +759,9 @@
             arenaQuestionText.innerText = currentObj.prompt;
 
             if (activeIndex < 5) {
-                arenaLevelHeader.innerText = "Part 1: Spot Syntax & Logic Errors 🛠️";
+                arenaLevelHeader.innerText = "Part 1: Spot the Code Bug 🛠️";
             } else {
-                arenaLevelHeader.innerText = "Part 2: Find Missing Logic & Code Errors 🔍";
+                arenaLevelHeader.innerText = "Part 2: Complete the Missing Syntax 🧩";
             }
 
             if (currentObj.code) {
@@ -782,14 +775,13 @@
 
         function triggerCountdownClock() {
             clearInterval(clockIntervalRef);
-            const totalTime = 60;
-            secondsRemaining = totalTime;
+            secondsRemaining = 50;
             arenaTimerFill.style.width = "100%";
-            arenaTimerText.innerText = `${totalTime}s`;
+            arenaTimerText.innerText = "50s";
 
             clockIntervalRef = setInterval(() => {
                 secondsRemaining -= 0.1;
-                let pct = (secondsRemaining / totalTime) * 100;
+                let pct = (secondsRemaining / 50) * 100;
                 arenaTimerFill.style.width = `${Math.max(0, pct)}%`;
                 arenaTimerText.innerText = `${Math.ceil(secondsRemaining)}s`;
 
@@ -886,25 +878,20 @@
 
         function compileFinalReportCardSummary() {
             switchGameView(viewReport);
-            const totalQuestions = fullQuizChallengesRepo.length;
-            const wrongAnswersCount = totalQuestions - runningScore;
-
             document.getElementById("rep-l1-score").innerText = `${l1Points} / 5`;
             document.getElementById("rep-l2-score").innerText = `${l2Points} / 5`;
-            document.getElementById("rep-correct-count").innerText = `${runningScore} Questions`;
-            document.getElementById("rep-wrong-count").innerText = `${wrongAnswersCount} Questions`;
-            document.getElementById("rep-grand-total").innerText = `${runningScore} / ${totalQuestions}`;
+            document.getElementById("rep-grand-total").innerText = `${runningScore} / 10`;
 
-            const percentageVal = Math.round((runningScore / totalQuestions) * 100);
+            const percentageVal = Math.round((runningScore / 10) * 100);
             document.getElementById("rep-percentage").innerText = `${percentageVal}%`;
 
             const noteElement = document.getElementById("handwritten-note-body");
             if (runningScore >= 8) {
-                noteElement.innerText = `Impressive work! You scored ${runningScore} out of 10 (${percentageVal}%), catching sneaky logic bugs and filling in missing code like a pro game developer. Ready for the next level!`;
+                noteElement.innerText = "You did an absolutely brilliant job on this Python revision! Your ability to spot tricky bugs in conditions, loops, and functions and complete real-world code snippets is fantastic. Keep coding like a superstar!";
             } else if (runningScore >= 5) {
-                noteElement.innerText = `Solid effort completing all 10 challenges! You got ${runningScore} right and ${wrongAnswersCount} to review. Check the breakdown below—spotting loop resets and missing steps gets easier every time!`;
+                noteElement.innerText = "Great effort on your revision! You have a solid foundation in Python debugging and syntax. Review the tricky questions below, and you'll be 100% ready for building real-world apps!";
             } else {
-                noteElement.innerText = `Good effort tackling these real-world Python challenges! You got ${runningScore} right and ${wrongAnswersCount} to review. Walk through the explanations below step-by-step and try another round to level up your debugging skills!`;
+                noteElement.innerText = "Good try revising today! Spotting bugs in loops, conditions, and functions takes practice. Check the review questions below, try again, and you will do even better!";
             }
 
             renderDetailedReviewLog("all");
